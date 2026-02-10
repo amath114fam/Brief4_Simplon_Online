@@ -1,0 +1,153 @@
+import mysql.connector
+from datetime import datetime
+
+connection = mysql.connector.connect(
+    host = "localhost",
+    user = "root",
+    database = "boutique_pro",
+    password = "fam@2025"
+)
+if connection.is_connected():
+    print("Connexion réussi")
+"""ajouter catégorie"""
+def add_categorie(nom):
+    cursor = connection.cursor()
+    query = "insert into categories(nom_categorie) values (%s)"
+    cursor.execute(query, (nom,))
+    connection.commit()
+    cursor.close()
+    print(f"La catégorie {nom} est ajoutée avec succès")
+"""afficher liste catégorie"""
+def liste_categorie():
+    cursor = connection.cursor()
+    query  = "select * from categories "
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    print("-" * 10)
+    print("La liste des catégories : ")
+    print("-" * 5)
+    for row in rows:
+        print(f"{row[0]}. {row[1]}")
+    cursor.close()
+"""ajouter produit"""
+def add_produit(nom_produit, prix, statut_stock,quantite, id_categorie):
+    cursor = connection.cursor()
+    query = "insert into produits(nom_produit, prix, statut_stock,quantite, id_categorie) values (%s, %s, %s, %s, %s)"
+    cursor.execute(query, (nom_produit, prix, statut_stock, quantite, id_categorie))
+    connection.commit()
+    print(f"Le produit {nom_produit} est ajoutée avec succès")
+    id_produit_ancien = cursor.lastrowid
+    now = datetime.now()
+    querys = "insert into mouvements(quantite, date, id_produit, type_mouvement) values (%s, %s, %s, %s)"
+    mouvement = "ajout"
+    date = now.date()
+    cursor.execute(querys, (quantite, date, id_produit_ancien, mouvement))
+    connection.commit()
+    cursor.close()
+"""liste produit"""
+def liste_produit():
+    cursor = connection.cursor()
+    query  = "select * from produits"
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    # now = datetime.now()
+    for row in rows:
+        print(f"{row[0]}. {row[1]} {row[2]},  quantite : {row[5]}, statut : {row[3]}")
+    cursor.close()
+"""liste des produits avec leurs categories"""
+def liste_produit_categorie():
+    cursor = connection.cursor()
+    query  = "select nom_produit, categories.nom_categorie from produits join categories on produits.id_categorie=categories.id_categorie"
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    print("La liste des produits avec leur catégories")
+    for row in rows:
+        print(row)
+    cursor.close()
+def mouvements():
+    cursor = connection.cursor()
+    query  = "select * from mouvements"
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    print("Les mouvements : ")
+    print("-" * 10)
+    for row in rows:
+        print(f"{row[0]}.  quantite : {row[1]}, {row[2]}, produit : {row[3]}, {row[4]}")
+    cursor.close()
+"""modifier la quantité du produit"""
+def modifier_quantite_produits(quantite, id_produit):
+    cursor = connection.cursor()
+    query = "Update produits set quantite = %s where id_produit = %s"
+    cursor.execute(query, (quantite, id_produit))
+    connection.commit()
+    print("Le produit est modifié avec succès")
+    now = datetime.now()
+    querys = "insert into mouvements(quantite, date, id_produit, type_mouvement) values (%s, %s, %s, %s)"
+    mouvement = "modifié"
+    date = now.date()
+    cursor.execute(querys, (quantite, date, id_produit, mouvement))
+    connection.commit()
+    cursor.close()
+def menu():
+    print("-" * 30)
+    print("1. Ajouter une catégorie")
+    print("2. La liste des catégories")
+    print("3. Ajouter un produit")
+    print("4. La liste des produits")
+    print("5. Modifier un produit")
+    print("6. Historique")
+    print("7. La liste des produits avec leur catégorie")
+    print("8. Quitter")
+    print("-" * 30)
+    question = input("Entrer un numéro du menu : ")
+    return question
+while True:
+    choix = menu()
+    match choix:
+        case "1":
+            nom = input("Entrer le nom de la catégorie : ")
+            add_categorie(nom)
+        case "2":
+            liste_categorie()
+        case "3":
+            print("-" * 30)
+            nom = input("Entrer le nom du produit : ")
+            prix = input("Entrer le prix du produit : ")
+            while not prix.isnumeric():
+                print("Veillez saisir un nombre")
+                prix = input("Entrer le prix du produit : ")
+            statut_stock = input("Entrer le statut de stock du produit(disponible ou en rupture) : ")
+            quantite = input("Entrer la quantité du stock du produit : ")
+            while not quantite.isnumeric():
+                print("Veillez saisir un nombre")
+                quantite = input("Entrer la quantité de stock du produit : ")
+            liste_categorie()
+            id_categorie = input("Choisie le numero de la catégorie exemple(1) : ")
+            while not id_categorie.isnumeric():
+                print("Veillez saisir un nombre")
+                id_categorie = input("Choisie le numero de la catégorie exemple(1) : ")
+            add_produit(nom, prix, statut_stock,quantite, id_categorie)
+        case "4":
+            liste_produit()
+        case "5":
+            liste_produit()
+            quantite_modifie = input("Entrer la quantite : ")
+            while not quantite_modifie.isnumeric():
+                print("Veillez saisir un nombre")
+                quantite_modifie = input("Entrer la quantité de stock du produit : ")
+            iD_produit = input("Entrer l'id du produit : ")
+            while not iD_produit.isnumeric():
+                print("Veillez saisir un nombre")
+                iD_produit = input("Choisie l'id du produit exemple(1) : ")
+            modifier_quantite_produits(quantite_modifie, iD_produit)
+        case "6":
+            try:
+                mouvements()
+            except Exception as e:
+                print("Erreur :", e)
+        case "7":
+            liste_produit_categorie()
+        case _:
+            exit()
+            connection.close()
+
