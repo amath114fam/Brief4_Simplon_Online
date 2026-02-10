@@ -18,6 +18,12 @@ def add_categorie(nom):
     cursor.close()
     print("-" * 10)
     print(f"La catégorie {nom} est ajoutée avec succès")
+def saisie_add_categorie():
+    nom = input("Entrer le nom de la catégorie : ").strip()
+    while nom == "" or nom.isnumeric():
+        print("Veiller saisir des lettres alphabétiques")
+        nom = input("Entrer le nom de la catégorie : ").strip()
+    add_categorie(nom)
 """afficher liste catégorie"""
 def liste_categorie():
     cursor = connection.cursor()
@@ -53,6 +59,8 @@ def liste_produit():
     cursor.execute(query)
     rows = cursor.fetchall()
     # now = datetime.now()
+    print("La liste des produits")
+    print("-" * 30)
     for row in rows:
         print(f"{row[0]}. {row[1]} {row[2]},  quantite : {row[5]}, statut : {row[3]}")
     cursor.close()
@@ -102,6 +110,41 @@ def stock_faible():
     for row in rows:
         print(f"{row[1]}, prix : {row[2]}, {row[5]} en stock")
     cursor.close()
+"""Gère la saisie et l'appel de la fonction add_produit"""
+def saisie_ajout_produit():
+    nom = input("Entrer le nom du produit : ").strip()
+    while nom == "" or nom.isnumeric():
+        print("Veiller saisir des lettres alphabétiques")
+        nom = input("Entrer le nom du produit : ").strip()
+    prix = input("Entrer le prix du produit : ").strip()
+    while not prix.isnumeric() or prix == "":
+        print("Veillez saisir un nombre")
+        prix = input("Entrer le prix du produit : ").strip()
+    statut_stock = input("Entrer le statut de stock du produit(disponible ou en rupture) : ").strip()
+    while statut_stock == "" or statut_stock.isnumeric():
+        print("Veiller saisir des lettres alphabétiques")
+        statut_stock = input("Entrer le statut de stock du produit(disponible ou en rupture) : ").strip()
+    quantite = input("Entrer la quantité du stock du produit : ").strip()
+    while not quantite.isnumeric() or quantite == "":
+        print("Veillez saisir un nombre")
+        quantite = input("Entrer la quantité de stock du produit : ").strip()
+    liste_categorie()
+    id_categorie = input("Choisie le numero de la catégorie exemple(1) : ").strip()
+    while not id_categorie.isnumeric() or id_categorie == "":
+        print("Veillez saisir un nombre")
+        id_categorie = input("Choisie le numero de la catégorie exemple(1) : ").strip()
+    add_produit(nom, prix, statut_stock,quantite, id_categorie)
+"""modifier produit et gerer la saisie"""
+def update_produit_saisie():
+    quantite_modifie = input("Entrer la quantite : ")
+    while not quantite_modifie.isnumeric() or quantite_modifie == "":
+        print("Veillez saisir un nombre")
+        quantite_modifie = input("Entrer la quantité de stock du produit : ").strip()
+    iD_produit = input("Entrer l'id du produit : ").strip()
+    while not iD_produit.isnumeric() or iD_produit == "":
+        print("Veillez saisir un nombre")
+        iD_produit = input("Choisie l'id du produit exemple(1) : ").strip()
+    modifier_quantite_produits(quantite_modifie, iD_produit)
 def menu():
     print("-" * 30)
     print("1. Ajouter une catégorie")
@@ -120,41 +163,17 @@ while True:
     choix = menu()
     match choix:
         case "1":
-            nom = input("Entrer le nom de la catégorie : ").strip()
-            add_categorie(nom)
+            saisie_add_categorie()
         case "2":
             liste_categorie()
         case "3":
             print("-" * 30)
-            nom = input("Entrer le nom du produit : ").strip()
-            prix = input("Entrer le prix du produit : ").strip()
-            while not prix.isnumeric():
-                print("Veillez saisir un nombre")
-                prix = input("Entrer le prix du produit : ").strip()
-            statut_stock = input("Entrer le statut de stock du produit(disponible ou en rupture) : ").strip()
-            quantite = input("Entrer la quantité du stock du produit : ").strip()
-            while not quantite.isnumeric():
-                print("Veillez saisir un nombre")
-                quantite = input("Entrer la quantité de stock du produit : ").strip()
-            liste_categorie()
-            id_categorie = input("Choisie le numero de la catégorie exemple(1) : ").strip()
-            while not id_categorie.isnumeric():
-                print("Veillez saisir un nombre")
-                id_categorie = input("Choisie le numero de la catégorie exemple(1) : ").strip()
-            add_produit(nom, prix, statut_stock,quantite, id_categorie)
+            saisie_ajout_produit()
         case "4":
             liste_produit()
         case "5":
             liste_produit()
-            quantite_modifie = input("Entrer la quantite : ")
-            while not quantite_modifie.isnumeric():
-                print("Veillez saisir un nombre")
-                quantite_modifie = input("Entrer la quantité de stock du produit : ").strip()
-            iD_produit = input("Entrer l'id du produit : ").strip()
-            while not iD_produit.isnumeric():
-                print("Veillez saisir un nombre")
-                iD_produit = input("Choisie l'id du produit exemple(1) : ").strip()
-            modifier_quantite_produits(quantite_modifie, iD_produit)
+            update_produit_saisie()
         case "6":
             try:
                 mouvements()
