@@ -16,6 +16,7 @@ def add_categorie(nom):
     cursor.execute(query, (nom,))
     connection.commit()
     cursor.close()
+    print("-" * 10)
     print(f"La catégorie {nom} est ajoutée avec succès")
 """afficher liste catégorie"""
 def liste_categorie():
@@ -36,6 +37,7 @@ def add_produit(nom_produit, prix, statut_stock,quantite, id_categorie):
     cursor.execute(query, (nom_produit, prix, statut_stock, quantite, id_categorie))
     connection.commit()
     print(f"Le produit {nom_produit} est ajoutée avec succès")
+    print("-" * 10)
     id_produit_ancien = cursor.lastrowid
     now = datetime.now()
     querys = "insert into mouvements(quantite, date, id_produit, type_mouvement) values (%s, %s, %s, %s)"
@@ -61,6 +63,7 @@ def liste_produit_categorie():
     cursor.execute(query)
     rows = cursor.fetchall()
     print("La liste des produits avec leur catégories")
+    print("-" * 10)
     for row in rows:
         print(row)
     cursor.close()
@@ -81,6 +84,7 @@ def modifier_quantite_produits(quantite, id_produit):
     cursor.execute(query, (quantite, id_produit))
     connection.commit()
     print("Le produit est modifié avec succès")
+    print("-" * 10)
     now = datetime.now()
     querys = "insert into mouvements(quantite, date, id_produit, type_mouvement) values (%s, %s, %s, %s)"
     mouvement = "modifié"
@@ -94,8 +98,9 @@ def stock_faible():
     cursor.execute(query)
     rows = cursor.fetchall()
     print("La liste des produits en faible stock")
+    print("-" * 30)
     for row in rows:
-        print(row)
+        print(f"{row[1]}, prix : {row[2]}, {row[5]} en stock")
     cursor.close()
 def menu():
     print("-" * 30)
@@ -109,33 +114,33 @@ def menu():
     print("8. La liste des produits en faible stock")
     print("9. Quitter")
     print("-" * 30)
-    question = input("Entrer un numéro du menu : ")
+    question = input("Entrer un numéro du menu : ").strip()
     return question
 while True:
     choix = menu()
     match choix:
         case "1":
-            nom = input("Entrer le nom de la catégorie : ")
+            nom = input("Entrer le nom de la catégorie : ").strip()
             add_categorie(nom)
         case "2":
             liste_categorie()
         case "3":
             print("-" * 30)
-            nom = input("Entrer le nom du produit : ")
-            prix = input("Entrer le prix du produit : ")
+            nom = input("Entrer le nom du produit : ").strip()
+            prix = input("Entrer le prix du produit : ").strip()
             while not prix.isnumeric():
                 print("Veillez saisir un nombre")
-                prix = input("Entrer le prix du produit : ")
-            statut_stock = input("Entrer le statut de stock du produit(disponible ou en rupture) : ")
-            quantite = input("Entrer la quantité du stock du produit : ")
+                prix = input("Entrer le prix du produit : ").strip()
+            statut_stock = input("Entrer le statut de stock du produit(disponible ou en rupture) : ").strip()
+            quantite = input("Entrer la quantité du stock du produit : ").strip()
             while not quantite.isnumeric():
                 print("Veillez saisir un nombre")
-                quantite = input("Entrer la quantité de stock du produit : ")
+                quantite = input("Entrer la quantité de stock du produit : ").strip()
             liste_categorie()
-            id_categorie = input("Choisie le numero de la catégorie exemple(1) : ")
+            id_categorie = input("Choisie le numero de la catégorie exemple(1) : ").strip()
             while not id_categorie.isnumeric():
                 print("Veillez saisir un nombre")
-                id_categorie = input("Choisie le numero de la catégorie exemple(1) : ")
+                id_categorie = input("Choisie le numero de la catégorie exemple(1) : ").strip()
             add_produit(nom, prix, statut_stock,quantite, id_categorie)
         case "4":
             liste_produit()
@@ -144,11 +149,11 @@ while True:
             quantite_modifie = input("Entrer la quantite : ")
             while not quantite_modifie.isnumeric():
                 print("Veillez saisir un nombre")
-                quantite_modifie = input("Entrer la quantité de stock du produit : ")
-            iD_produit = input("Entrer l'id du produit : ")
+                quantite_modifie = input("Entrer la quantité de stock du produit : ").strip()
+            iD_produit = input("Entrer l'id du produit : ").strip()
             while not iD_produit.isnumeric():
                 print("Veillez saisir un nombre")
-                iD_produit = input("Choisie l'id du produit exemple(1) : ")
+                iD_produit = input("Choisie l'id du produit exemple(1) : ").strip()
             modifier_quantite_produits(quantite_modifie, iD_produit)
         case "6":
             try:
@@ -160,6 +165,7 @@ while True:
         case "8":
             stock_faible()
         case _:
+            print("Erreur de saisie")
             exit()
             connection.close()
 
