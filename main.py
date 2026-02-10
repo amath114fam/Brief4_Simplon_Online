@@ -88,6 +88,15 @@ def modifier_quantite_produits(quantite, id_produit):
     cursor.execute(querys, (quantite, date, id_produit, mouvement))
     connection.commit()
     cursor.close()
+def stock_faible():
+    cursor = connection.cursor()
+    query = "select * from produits where quantite < 5"
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    print("La liste des produits en faible stock")
+    for row in rows:
+        print(row)
+    cursor.close()
 def menu():
     print("-" * 30)
     print("1. Ajouter une catégorie")
@@ -97,7 +106,8 @@ def menu():
     print("5. Modifier un produit")
     print("6. Historique")
     print("7. La liste des produits avec leur catégorie")
-    print("8. Quitter")
+    print("8. La liste des produits en faible stock")
+    print("9. Quitter")
     print("-" * 30)
     question = input("Entrer un numéro du menu : ")
     return question
@@ -147,6 +157,8 @@ while True:
                 print("Erreur :", e)
         case "7":
             liste_produit_categorie()
+        case "8":
+            stock_faible()
         case _:
             exit()
             connection.close()
