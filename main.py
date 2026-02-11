@@ -1,14 +1,9 @@
-import mysql.connector
+from db import get_connexion
 from datetime import datetime
+from auth import create_user
+from login import logine
 
-connection = mysql.connector.connect(
-    host = "localhost",
-    user = "root",
-    database = "boutique_pro",
-    password = "fam@2025"
-)
-if connection.is_connected():
-    print("Connexion réussi")
+connection = get_connexion()
 """ajouter catégorie"""
 def add_categorie(nom):
     cursor = connection.cursor()
@@ -145,46 +140,112 @@ def update_produit_saisie():
         print("Veillez saisir un nombre")
         iD_produit = input("Choisie l'id du produit exemple(1) : ").strip()
     modifier_quantite_produits(quantite_modifie, iD_produit)
-def menu():
-    print("-" * 30)
-    print("1. Ajouter une catégorie")
-    print("2. La liste des catégories")
-    print("3. Ajouter un produit")
-    print("4. La liste des produits")
-    print("5. Modifier un produit")
-    print("6. Historique")
-    print("7. La liste des produits avec leur catégorie")
-    print("8. La liste des produits en faible stock")
-    print("9. Quitter")
-    print("-" * 30)
-    question = input("Entrer un numéro du menu : ").strip()
-    return question
-while True:
-    choix = menu()
-    match choix:
-        case "1":
-            saisie_add_categorie()
-        case "2":
-            liste_categorie()
-        case "3":
-            print("-" * 30)
-            saisie_ajout_produit()
-        case "4":
-            liste_produit()
-        case "5":
-            liste_produit()
-            update_produit_saisie()
-        case "6":
-            try:
-                mouvements()
-            except Exception as e:
-                print("Erreur :", e)
-        case "7":
-            liste_produit_categorie()
-        case "8":
-            stock_faible()
-        case _:
-            print("Erreur de saisie")
-            exit()
-            connection.close()
+def menu_admin():
+    continuer = True
+    while continuer:
+        print("-" * 30)
+        print("1. Ajouter une catégorie")
+        print("2. La liste des catégories")
+        print("3. Ajouter un produit")
+        print("4. La liste des produits")
+        print("5. Modifier un produit")
+        print("6. Historique")
+        print("7. La liste des produits avec leur catégorie")
+        print("8. La liste des produits en faible stock")
+        print("9. Déconnecter")
+        print("-" * 30)
 
+        question = input("Entrer un numéro du menu : ").strip()
+
+        match question:
+            case "1":
+                saisie_add_categorie()
+            case "2":
+                liste_categorie()
+            case "3":
+                print("-" * 30)
+                saisie_ajout_produit()
+            case "4":
+                liste_produit()
+            case "5":
+                liste_produit()
+                update_produit_saisie()
+            case "6":
+                try:
+                    mouvements()
+                except Exception as e:
+                    print("Erreur :", e)
+            case "7":
+                liste_produit_categorie()
+            case "8":
+                stock_faible()
+            case "9":
+                print("Déconnexion...")
+                continuer = False
+            case _:
+                print("Erreur de saisie, réessayez !")
+
+def menu_utilisateurs():
+    continuer = True
+    while continuer:
+        print("-" * 30)
+        print("1. La liste des catégories")
+        print("2. La liste des produits")
+        print("3. La liste des produits avec leur catégorie")
+        print("4. Historique")
+        print("5. La liste des produits en faible stock")
+        print("6. Déconnecter")
+        print("-" * 30)
+        question = input("Entrer un numéro du menu : ").strip()
+        match question:
+            case "1":
+                liste_categorie()
+            case "2":
+                liste_produit()
+            case "3":
+                liste_produit_categorie()
+            case "4":
+                try:
+                    mouvements()
+                except Exception as e:
+                    print("Erreur :", e)
+            case "5":
+                stock_faible()
+            case "6":
+                print("Tu es déconnecté")
+                continuer = False
+            case _:
+                print("Erreur de saisie")
+                exit()
+
+##############################LE MENU D'AUTHENTIFICATION##############################
+def main():
+    print("#" * 80)
+    print("Bienvenu dans la boutique".center(80))
+    print("#" * 80)
+    continuer = True
+    while continuer:
+        print("1. S'inscrire")
+        print("2. Se connecter")
+        print("0. Quitter")
+        choix = input("Choisie : ")
+        match choix:
+            case "1":
+                create_user()
+                menu_utilisateurs()
+            case "2":
+                user = logine()
+                if user:
+                    if user["role"].lower() == "admin":
+                        menu_admin()
+                    else:
+                        menu_utilisateurs()
+                else:
+                    print("Mot de passe incorrect")
+            case "0":
+                print("Au revoir")
+                continuer = False
+            case _:
+                print("Erreur de saisie")
+                exit()
+main()
