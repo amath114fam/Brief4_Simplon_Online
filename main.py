@@ -240,8 +240,6 @@ def main():
                         menu_admin()
                     else:
                         menu_utilisateurs()
-                else:
-                    print("Mot de passe incorrect")
             case "0":
                 print("Au revoir")
                 continuer = False
